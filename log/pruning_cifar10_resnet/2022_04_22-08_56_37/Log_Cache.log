@@ -1,0 +1,56 @@
+*****************LOG_Cache_2022_04_22_08_56*****************
+notify started
+notify_frontend reboosted!
+log_root_path log
+mail_user a429296965@163.com
+default_reciving_list ['a429296965@163.com']
+start monitoring:)
+usage: pruning_cifar10_resnet.py [-h]
+                                 [--dataset {cifar10,cifar100,imagenet,svhn,stl10}]
+                                 [--arch ARCH] [--epochs EPOCHS]
+                                 [--batch_size BATCH_SIZE]
+                                 [--learning_rate LEARNING_RATE]
+                                 [--momentum MOMENTUM] [--decay DECAY]
+                                 [--schedule SCHEDULE [SCHEDULE ...]]
+                                 [--gammas GAMMAS [GAMMAS ...]]
+                                 [--print_freq N] [--save_path SAVE_PATH]
+                                 [--resume PATH] [--start_epoch N]
+                                 [--evaluate] [--ngpu NGPU]
+                                 [--workers WORKERS] [--manualSeed MANUALSEED]
+                                 [--rate RATE] [--layer_begin LAYER_BEGIN]
+                                 [--layer_end LAYER_END]
+                                 [--layer_inter LAYER_INTER]
+                                 [--epoch_prune EPOCH_PRUNE]
+                                 [--use_state_dict] [--decay_rate DECAY_RATE]
+                                 data_path
+pruning_cifar10_resnet.py: error: argument --decay_rate: invalid int value: '0.7'
+finished
+
+============================================================
+Processing finished !
+start time: 2022_04_22  08:56:37
+end time: 2022_04_22  08:56:47
+source: LAPTOP-ORM4EMUV
+
+Preparing the email with auto log file :
+ pruning_cifar10_resnet__2022_04_22-08_56_37_log 
+as  .rtf
+usage: pruning_cifar10_resnet.py [-h]
+                                 [--dataset {cifar10,cifar100,imagenet,svhn,stl10}]
+                                 [--arch ARCH] [--epochs EPOCHS]
+                                 [--batch_size BATCH_SIZE]
+                                 [--learning_rate LEARNING_RATE]
+                                 [--momentum MOMENTUM] [--decay DECAY]
+                                 [--schedule SCHEDULE [SCHEDULE ...]]
+                                 [--gammas GAMMAS [GAMMAS ...]]
+                                 [--print_freq N] [--save_path SAVE_PATH]
+                                 [--resume PATH] [--start_epoch N]
+                                 [--evaluate] [--ngpu NGPU]
+                                 [--workers WORKERS] [--manualSeed MANUALSEED]
+                                 [--rate RATE] [--layer_begin LAYER_BEGIN]
+                                 [--layer_end LAYER_END]
+                                 [--layer_inter LAYER_INTER]
+                                 [--epoch_prune EPOCH_PRUNE]
+                                 [--use_state_dict] [--decay_rate DECAY_RATE]
+                                 data_path
+pruning_cifar10_resnet.py: error: argument --decay_rate: invalid int value: '0.7'

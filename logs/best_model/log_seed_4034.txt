@@ -1,0 +1,15 @@
+save path : ./logs/best_model/
+{'arch': 'resnet20', 'batch_size': 32, 'data_path': './data/cifar.python', 'dataset': 'cifar10', 'decay': 0.0005, 'epoch_prune': 1, 'epochs': 300, 'evaluate': False, 'gammas': [10, 0.2, 0.2, 0.2], 'layer_begin': 0, 'layer_end': 324, 'layer_inter': 3, 'learning_rate': 0.01, 'manualSeed': 4034, 'momentum': 0.9, 'ngpu': 1, 'print_freq': 200, 'rate': 0.7, 'resume': 'best_model_test/model_best.pth.tar', 'save_path': './logs/best_model/', 'schedule': [1, 60, 120, 160], 'start_epoch': 0, 'use_cuda': True, 'use_state_dict': False, 'workers': 0}
+Random Seed: 4034
+python version : 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)]
+torch  version : 1.10.0
+cudnn  version : 8200
+Compress Rate: 0.7
+Layer Begin: 0
+Layer End: 324
+Layer Inter: 3
+Epoch prune: 1
+=> creating model 'resnet20'
+=> loading checkpoint 'best_model_test/model_best.pth.tar'
+=> loaded checkpoint 'best_model_test/model_best.pth.tar' (epoch 95)
+  **Test** Prec@1 84.000 Prec@5 99.270 Error@1 16.000

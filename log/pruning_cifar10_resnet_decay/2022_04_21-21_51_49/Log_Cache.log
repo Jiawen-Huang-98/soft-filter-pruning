@@ -1,0 +1,59 @@
+*****************LOG_Cache_2022_04_21_21_51*****************
+notify started
+notify_frontend reboosted!
+log_root_path log
+mail_user a429296965@163.com
+default_reciving_list ['a429296965@163.com']
+start monitoring:)
+save path : ./logs/cifar10_resnet110_norm2_0_324_3_rate0.7
+{'arch': 'resnet110', 'batch_size': 32, 'data_path': './data/cifar.python', 'dataset': 'cifar10', 'decay': 0.0005, 'epoch_prune': 1, 'epochs': 200, 'evaluate': False, 'gammas': [10.0, 0.2, 0.2, 0.2], 'layer_begin': 0, 'layer_end': 324, 'layer_inter': 3, 'learning_rate': 0.01, 'manualSeed': 396, 'momentum': 0.9, 'ngpu': 1, 'print_freq': 200, 'rate': 0.7, 'resume': '', 'save_path': './logs/cifar10_resnet110_norm2_0_324_3_rate0.7', 'schedule': [1, 60, 120, 160], 'start_epoch': 0, 'use_cuda': True, 'use_state_dict': False, 'workers': 0}
+Random Seed: 396
+python version : 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)]
+torch  version : 1.10.0
+cudnn  version : 8200
+Compress Rate: 0.7
+Layer Begin: 0
+Layer End: 324
+Layer Inter: 3
+Epoch prune: 1
+=> creating model 'resnet110'
+CifarResNet : Depth : 110 , Layers for each block : 18
+=> do not use any checkpoint for resnet110 model
+----------one epoch begin----------
+the compression rate now is 0.700000
+  **Test** Prec@1 10.000 Prec@5 51.610 Error@1 90.000
+ accu before is: 10.000 %
+mask Ready
+mask Done
+  **Test** Prec@1 10.180 Prec@5 50.000 Error@1 89.820
+ accu after is: 10.18 %
+
+==>>[2022-04-21 13:53:18] [Epoch=000/200] [Need: 00:00:00] [learning_rate=0.0100] [Best : Accuracy=0.00, Error=100.00]
+  Epoch: [000][000/1563]   Time 0.741 (0.741)   Data 0.015 (0.015)   Loss 9.8990 (9.8990)   Prec@1 9.375 (9.375)   Prec@5 62.500 (62.500)   [2022-04-21 13:53:19]
+Traceback (most recent call last):
+  File "D:/python_script/soft-filter-pruning-master/pruning_cifar10_resnet_decay.py", line 511, in <module>
+    main()
+  File "D:/python_script/soft-filter-pruning-master/pruning_cifar10_resnet_decay.py", line 221, in main
+    train_acc, train_los = train(train_loader, net, criterion, optimizer, 0, log)
+  File "D:/python_script/soft-filter-pruning-master/pruning_cifar10_resnet_decay.py", line 289, in train
+    losses.update(loss.item(), input.size(0))
+KeyboardInterrupt
+finished
+
+============================================================
+Processing finished !
+start time: 2022_04_21  21:51:49
+end time: 2022_04_21  21:54:39
+source: LAPTOP-ORM4EMUV
+
+Preparing the email with auto log file :
+ pruning_cifar10_resnet_decay__2022_04_21-21_51_49_log 
+as  .rtf
+Traceback (most recent call last):
+  File "D:/python_script/soft-filter-pruning-master/pruning_cifar10_resnet_decay.py", line 511, in <module>
+    main()
+  File "D:/python_script/soft-filter-pruning-master/pruning_cifar10_resnet_decay.py", line 221, in main
+    train_acc, train_los = train(train_loader, net, criterion, optimizer, 0, log)
+  File "D:/python_script/soft-filter-pruning-master/pruning_cifar10_resnet_decay.py", line 289, in train
+    losses.update(loss.item(), input.size(0))
+KeyboardInterrupt

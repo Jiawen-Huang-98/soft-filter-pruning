@@ -1,0 +1,13 @@
+save path : ./logs/cifar10_resnet110_norm2_0_324_3_rate0.7
+{'arch': 'resnet110', 'batch_size': 16, 'data_path': '../datasets/CIFAR/cifar.python', 'dataset': 'cifar10', 'decay': 0.0005, 'decay_rate': 0.7, 'epoch_prune': 1, 'epochs': 200, 'evaluate': False, 'gammas': [10.0, 0.2, 0.2, 0.2], 'layer_begin': 0, 'layer_end': 324, 'layer_inter': 3, 'learning_rate': 0.01, 'manualSeed': 2545, 'momentum': 0.9, 'ngpu': 1, 'print_freq': 200, 'rate': 0.7, 'resume': '', 'save_path': './logs/cifar10_resnet110_norm2_0_324_3_rate0.7', 'schedule': [1, 60, 120, 160], 'start_epoch': 0, 'use_cuda': True, 'use_state_dict': False, 'workers': 0}
+=> creating model 'resnet110'
+=> parameter : Namespace(arch='resnet110', batch_size=16, data_path='../datasets/CIFAR/cifar.python', dataset='cifar10', decay=0.0005, decay_rate=0.7, epoch_prune=1, epochs=200, evaluate=False, gammas=[10.0, 0.2, 0.2, 0.2], layer_begin=0, layer_end=324, layer_inter=3, learning_rate=0.01, manualSeed=2545, momentum=0.9, ngpu=1, print_freq=200, rate=0.7, resume='', save_path='./logs/cifar10_resnet110_norm2_0_324_3_rate0.7', schedule=[1, 60, 120, 160], start_epoch=0, use_cuda=True, use_state_dict=False, workers=0)
+Random Seed: 2545
+python version : 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)]
+torch  version : 1.10.0
+cudnn  version : 8200
+Compress Rate: 0.7
+Layer Begin: 0
+Layer End: 324
+Layer Inter: 3
+Epoch prune: 1

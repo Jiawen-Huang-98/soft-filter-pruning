@@ -1,0 +1,22 @@
+save path : ./logs/cifar10_resnet110_norm2_0_324_3_rate0.7
+{'arch': 'resnet20', 'batch_size': 32, 'data_path': './data/cifar.python', 'dataset': 'cifar10', 'decay': 0.0005, 'epoch_prune': 1, 'epochs': 300, 'evaluate': False, 'gammas': [10, 0.2, 0.2, 0.2], 'layer_begin': 0, 'layer_end': 324, 'layer_inter': 3, 'learning_rate': 0.01, 'manualSeed': 8638, 'momentum': 0.9, 'ngpu': 1, 'print_freq': 200, 'rate': 0.7, 'resume': '', 'save_path': './logs/cifar10_resnet110_norm2_0_324_3_rate0.7', 'schedule': [1, 60, 120, 160], 'start_epoch': 0, 'use_cuda': True, 'use_state_dict': False, 'workers': 0}
+Random Seed: 8638
+python version : 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)]
+torch  version : 1.10.0
+cudnn  version : 8200
+Compress Rate: 0.7
+Layer Begin: 0
+Layer End: 324
+Layer Inter: 3
+Epoch prune: 1
+=> creating model 'resnet20'
+=> do not use any checkpoint for resnet20 model
+  **Test** Prec@1 10.000 Prec@5 50.000 Error@1 90.000
+  **Test** Prec@1 10.000 Prec@5 50.000 Error@1 90.000
+the decay_rate now is :1.0
+
+==>>[2022-10-09 21:43:23] [Epoch=000/300] [Need: 00:00:00] [learning_rate=0.0100] [Best : Accuracy=0.00, Error=100.00]
+  Epoch: [000][000/1563]   Time 0.383 (0.383)   Data 0.019 (0.019)   Loss 2.9424 (2.9424)   Prec@1 18.750 (18.750)   Prec@5 62.500 (62.500)   [2022-10-09 21:43:23]
+  Epoch: [000][200/1563]   Time 0.070 (0.074)   Data 0.012 (0.016)   Loss 1.6199 (1.9749)   Prec@1 46.875 (27.363)   Prec@5 90.625 (80.068)   [2022-10-09 21:43:37]
+  Epoch: [000][400/1563]   Time 0.072 (0.074)   Data 0.012 (0.015)   Loss 1.7204 (1.8377)   Prec@1 43.750 (32.310)   Prec@5 93.750 (84.250)   [2022-10-09 21:43:52]
+  Epoch: [000][600/1563]   Time 0.071 (0.073)   Data 0.011 (0.015)   Loss 1.4478 (1.7635)   Prec@1 43.750 (34.770)   Prec@5 96.875 (86.190)   [2022-10-09 21:44:07]
