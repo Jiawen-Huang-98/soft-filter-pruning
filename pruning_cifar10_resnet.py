@@ -51,7 +51,7 @@ parser.add_argument('--epoch_prune', type=int, default=1,  help='compress layer 
 parser.add_argument('--use_state_dict', dest='use_state_dict', action='store_true', help='use state dict or not')
 parser.add_argument('--decay_rate',type = float,default = 0.5,help = 'the pruned filter decay rate')
 
-args = parser.parse_args(['../datasets/CIFAR10/cifar.python', '--dataset', 'cifar10', '--arch', 'resnet110',
+args = parser.parse_args(['../datasets/CIFAR10/cifar.python', '--dataset', 'cifar10', '--arch', 'resnet20',
                          '--save_path', './logs/cifar10_resnet110_norm2_0_324_3_rate0.7', '--epochs', '200', '--schedule', '1', '60', '120', '160',
                          '--gammas', '10', '0.2', '0.2', '0.2', '--learning_rate', '0.01', '--decay', '0.0005', '--batch_size', '16', '--rate', '0.7', '--layer_begin', '0',
                          '--layer_end', '324', '--layer_inter', '3', '--epoch_prune', '1','--decay_rate', '0.7'])

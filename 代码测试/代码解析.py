@@ -17,16 +17,32 @@ from pruning_train import validate
 import torch.autograd as autograd
 from torchvision import datasets
 
+a = torch.rand(2,2,2,2)
+print(a)
+b = a.view(-1)
+print(b)
+x = b[:-1]
+print(x)
+y = b[:-2]
+print(y)
+# c = a.view(a.size()[1],-1)
+# print(c)
+# d = a.view(a.size()[0],-1)
+# print(d)
+
+
+
+
 
 
 # 使用线性退火方式
-epochs = 100
-decay_rate_init = 1
-
-for epoch in range(1, epochs+1):
-    # temp = temp*(1 - 2*epoch/epochs)
-    decay_rate = float('%.4f' % (decay_rate_init*(1 - epoch/epochs)))
-    print(decay_rate)
+# epochs = 100
+# decay_rate_init = 1
+#
+# for epoch in range(1, epochs+1):
+#     # temp = temp*(1 - 2*epoch/epochs)
+#     decay_rate = float('%.4f' % (decay_rate_init*(1 - epoch/epochs)))
+#     print(decay_rate)
 
 
 

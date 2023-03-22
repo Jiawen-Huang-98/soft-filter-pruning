@@ -53,8 +53,9 @@ parser.add_argument('--use_state_dict', dest='use_state_dict', action='store_tru
 
 args = parser.parse_args(['./data/cifar.python', '--dataset', 'cifar10', '--arch', 'resnet20',
                          '--save_path', './logs/best_model/',
-                         '--batch_size', '32','--resume','best_model_test/model_best.pth.tar',
-                         '--layer_end', '324'])
+                         '--batch_size', '32',
+                          # '--resume','best_model_test/model_best.pth.tar',
+                         '--layer_end', '54'])
 args.use_cuda = args.ngpu>0 and torch.cuda.is_available()
 
 # 设置随机种子
@@ -67,7 +68,7 @@ if args.use_cuda:
 cudnn.benchmark = True
 
 def main():
-    # Init logger  初始化日志
+    # Init logger  初始化日志resnet110
     if not os.path.isdir(args.save_path):
         os.makedirs(args.save_path)
     log = open(os.path.join(args.save_path, 'log_seed_{}.txt'.format(args.manualSeed)), 'w')
@@ -135,7 +136,7 @@ def main():
     print_log("=> creating model '{}'".format(args.arch), log)
     # Init model, criterion, and optimizer
     net = models.__dict__[args.arch](num_classes)  # 设置（加载）网络模型
-    # print_log("=> network :\n {}".format(net), log)
+    print_log("=> network :\n {}".format(net), log)
 
     net = torch.nn.DataParallel(net, device_ids=list(range(args.ngpu)))  # GPU并行计算
 
@@ -395,6 +396,7 @@ class Mask:
         self.model_length = {}
         self.compress_rate = {}
         self.mat = {}  #CodeBook
+        self.mat_next = {}
         self.model = model
         self.mask_index = []
         self.decay_rate = 0
@@ -417,11 +419,15 @@ class Mask:
         return weight_np    # 返回剪枝二进制向量
 
     # 卷积核剪枝,此处的length是该层卷积核（a,b,c,d）的参数总量a*b*c*d。（L2范数）
-    def get_filter_codebook(self, weight_torch,compress_rate,length):
+    def get_filter_codebook(self, weight_torch,compress_rate,length,weight_torch_next,length_next):
         codebook = np.ones(length)
+        if length_next is not None:
+            codebook_next = np.ones(length_next)
+        else:
+            codebook_next = None
 
         # 判断是否为卷积层
-        if len(weight_torch.size()) == 4:  # 权重值为四维向量（a,b,c,d），a为输入通道数，b为输出通道数卷积，b=c为卷积核大小，（待定）
+        if len(weight_torch.size()) == 4:  # 权重值为四维向量（a,b,c,d），a为输出通道数（卷积核数量），b为输入通道数卷积，b=c为卷积核大小，（待定）
             filter_pruned_num = int(weight_torch.size()[0]*(1-compress_rate))  # 计算被剪枝的数量
             weight_vec = weight_torch.view(weight_torch.size()[0],-1)  # 维度变换为（a,bcd）
             norm2 = torch.norm(weight_vec,2,1)  # 此处P=2,表示计算的是2范数，dim=1表示进行压缩的是第二维度，即对每个卷积核进行计算其结果的维度是（a）
@@ -430,15 +436,21 @@ class Mask:
 #            norm1_sort = np.sort(norm1_np)
 #            threshold = norm1_sort[int (weight_torch.size()[0] * (1-compress_rate) )]
             kernel_length = weight_torch.size()[1] *weight_torch.size()[2] *weight_torch.size()[3]  # 计算核的长度，即卷积核的参数b*c*d（待定）
+
+            print(weight_torch.size())
             # 创建掩码本（用于决定是否将值置为0），寻找剪枝的卷积核参数，将其掩码本位置置为0
             for x in range(0,len(filter_index)):
                 codebook[filter_index[x] *kernel_length : (filter_index[x]+1) *kernel_length] *= self.decay_rate
-
+                if length_next is not None:
+                    kernel_length_next = weight_torch_next.size()[1] * weight_torch_next.size()[2] * weight_torch_next.size()[3]
+                    filter_length = weight_torch_next.size()[2] * weight_torch_next.size()[3]
+                    for i in range(0,weight_torch_next.size()[0]):
+                        codebook_next[kernel_length_next*i+filter_index[x]*filter_length:kernel_length_next*i+filter_index[x]*filter_length] *= self.decay_rate
             # print("filter codebook done")
         else:
             pass
-        print(codebook)
-        return codebook
+        # print(codebook)
+        return codebook,codebook_next
 
     # 将x转换为tensor的float类型
     def convert2tensor(self,x):
@@ -478,10 +490,28 @@ class Mask:
         for index, item in enumerate(self.model.parameters()):
             # 对每个卷积层求其密码本
             if(index in self.mask_index):
-                self.mat[index] = self.get_filter_codebook(item.data, self.compress_rate[index], self.model_length[index])
+                if index+3 in self.mask_index:
+                    previous_item = item
+                if index == self.mask_index[-1]:
+                    previous_item = None
+                self.mat[index],self.mat_next[index] = self.get_filter_codebook(item.data, self.compress_rate[index], self.model_length[index],
+                                                                                previous_item.data if previous_item is not None else None,
+                                                                                self.model_length[index+3] if index+3 in self.mask_index else None)
                 self.mat[index] = self.convert2tensor(self.mat[index])
                 if args.use_cuda:
                     self.mat[index] = self.mat[index].cuda()
+
+                if self.mat_next[index] is not None:
+                    self.mat_next[index] = self.convert2tensor(self.mat_next[index])
+                    if args.use_cuda:
+                        self.mat_next[index] = self.mat_next[index].cuda()
+
+            # if (index-3 in self.mask_index):
+            #     self.mat_next[index] = self.get_filter_codebook(item.data, self.compress_rate[index],self.model_length[index],previous_item.data,self.model_length[index+3])
+            #     self.mat_next[index] = self.convert2tensor(self.mat[index])
+            #     if args.use_cuda:
+            #         self.mat[index] = self.mat[index].cuda()
+
         print("mask Ready")
 
     def do_mask(self):
@@ -491,6 +521,14 @@ class Mask:
                 # 将该卷积层的所有参数拉成一维向量，并与该层密码本相乘(即剪枝操作),再还原成原来的size
                 a = item.data.view(self.model_length[index])
                 b = a * self.mat[index]
+                item.data = b.view(self.model_size[index])
+            if (index-3 in self.mask_index[:-1]):
+                # 将该卷积层的所有参数拉成一维向量，并与该层密码本相乘(即剪枝操作),再还原成原来的size
+                a = item.data.view(self.model_length[index])
+                print(self.mask_index)
+                # print(index, self.mat_next[index - 3])
+                # print(self.mat_next)
+                b = a * self.mat_next[index-3]
                 item.data = b.view(self.model_size[index])
         print("mask Done")
 
