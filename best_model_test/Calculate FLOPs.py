@@ -170,7 +170,7 @@ def main():
             dir = '/data/yahe/cifar10_base/'
             # dir = '/data/uts521/yang/progress/cifar10_base/'
             whole_path = dir + 'cifar10_' + args.arch + '_base'
-            args.pretrain_path = whole_path + '/checkpoint.pth.tar'
+            args.pretrain_path = whole_path + '/res_20_checkpoint.pth.tar'
             print_log("Pretrain path: {}".format(args.pretrain_path), log)
         pretrain = torch.load(args.pretrain_path)
         if args.use_state_dict:

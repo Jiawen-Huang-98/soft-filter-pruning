@@ -258,7 +258,7 @@ def main():
             'state_dict': net,
             'recorder': recorder,
             'optimizer' : optimizer.state_dict(),
-        }, is_best, args.save_path, 'checkpoint.pth.tar')
+        }, is_best, args.save_path, 'res_20_checkpoint.pth.tar')
 
         # measure elapsed time
         epoch_time.update(time.time() - start_time)

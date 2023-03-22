@@ -45,7 +45,7 @@ parser.add_argument('--eval_small', dest='eval_small', action='store_true', help
 parser.add_argument('--small_model', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
 
 args = parser.parse_args(['./data/cifar.python', '-a', 'resnet20', '--workers', '0', '--batch-size', '32',
-                        # '--resume', 'best_model_test/checkpoint.pth.tar',
+                        # '--resume', 'best_model_test/res_20_checkpoint.pth.tar',
                         '--small_model', 'best_model_test/model_best.pth.tar',
                         '-e', '--eval_small', '--save_dir', './logs/infer_small_model'])
 args.use_cuda = torch.cuda.is_available()

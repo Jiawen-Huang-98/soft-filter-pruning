@@ -9,6 +9,7 @@ import torchvision.transforms as transforms
 from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time
 import models
 import numpy as np
+import torch.nn.functional as F
 # import notifyemail as notify
 
 # notify.Reboost(mail_host = 'smtp.163.com', mail_user = 'a429296965@163.com', mail_pass = 'HYYXLSBEYBJUJRCG', default_reciving_list = ['a429296965@163.com'],
@@ -135,7 +136,10 @@ def main():
 
     print_log("=> creating model '{}'".format(args.arch), log)
     # Init model, criterion, and optimizer
-    net = models.__dict__[args.arch](num_classes)  # 设置（加载）网络模型
+    net = models.__dict__[args.arch](num_classes)
+    global teacher_model
+    teacher_model= models.__dict__[args.arch](num_classes)# 设置（加载）网络模型
+    teacher_model = torch.nn.DataParallel(teacher_model, device_ids = list(range(args.ngpu)))  # GPU并行计算
     print_log("=> network :\n {}".format(net), log)
 
     net = torch.nn.DataParallel(net, device_ids=list(range(args.ngpu)))  # GPU并行计算
@@ -144,6 +148,14 @@ def main():
 
     # define loss function (criterion标准) and optimizer
     criterion = torch.nn.CrossEntropyLoss()  # 损失函数为交叉熵损失函数
+    global soft_loss, temp, alpha
+    soft_loss= torch.nn.KLDivLoss(reduction = "batchmean")  # 蒸馏损失
+    # teacher_model= torch.load('pre_model/res_20_checkpoint.pth.tar')
+    check_point = torch.load('pre_model/res_20_checkpoint.pth.tar',map_location = torch.device('cpu'))
+    teacher_model.load_state_dict(check_point['state_dict'])
+    teacher_model.eval()
+    temp = 3
+    alpha = 0.3
 
     optimizer = torch.optim.SGD(net.parameters(), state['learning_rate'], momentum=state['momentum'],
                                 weight_decay=state['decay'], nesterov=True)  # 优化器
@@ -207,11 +219,10 @@ def main():
     # Main loop
     start_time = time.time()
     epoch_time = AverageMeter()
-    decay_rate_init = 1
     for epoch in range(args.start_epoch, args.epochs):
 
         # 使用线性退火方式
-        m.decay_rate = max(0.0, float('%.4f' % (decay_rate_init * (1 - 2*epoch / args.epochs))))
+        m.decay_rate = max(0.0, float('%.4f' % (1 - 2*epoch / args.epochs)))
         print_log('the decay_rate now is :{}'.format(m.decay_rate),log)
 
         # gammas学习率的衰减系数，schedule是epoch列表在这些epoch进行学习率的衰减
@@ -224,7 +235,7 @@ def main():
                                 + ' [Best : Accuracy={:.2f}, Error={:.2f}]'.format(recorder.max_accuracy(False), 100-recorder.max_accuracy(False)), log)
 
         # train for one epoch
-        train_acc, train_los = train(train_loader, net, criterion, optimizer, 0, log)
+        train_acc, train_los = train(train_loader, net, criterion, optimizer, epoch, log)
 
         # evaluate on validation set
         # val_acc_1, val_los_1 = validate(test_loader, net, criterion, log)
@@ -254,7 +265,7 @@ def main():
             'state_dict': net,
             'recorder': recorder,
             'optimizer' : optimizer.state_dict(),
-        }, is_best, args.save_path, 'checkpoint.pth.tar')
+        }, is_best, args.save_path, 'res_20_checkpoint.pth.tar')
 
         # measure elapsed time
         epoch_time.update(time.time() - start_time)
@@ -286,10 +297,16 @@ def train(train_loader, model, criterion, optimizer, epoch, log):
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
+
         # compute output
         output = model(input_var)
-        loss = criterion(output, target_var)  #此处的损失函数为交叉熵函数
-
+        teacher_pred = teacher_model(input_var)
+        # 此处的损失函数为交叉熵函数
+        hard_loss = criterion(output, target_var)
+        # 计算蒸馏损失
+        ditillation_loss = soft_loss(F.softmax(output / temp, dim = 1),
+                                     F.softmax(teacher_pred / temp, dim = 1))
+        loss = alpha * hard_loss+(1-alpha)*ditillation_loss
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
         losses.update(loss.item(), input.size(0))
@@ -399,7 +416,7 @@ class Mask:
         self.mat_next = {}
         self.model = model
         self.mask_index = []
-        self.decay_rate = 0
+        self.decay_rate = 1
         
     # 权重剪枝(L1范数)
     def get_codebook(self, weight_torch,compress_rate,length):
@@ -437,7 +454,7 @@ class Mask:
 #            threshold = norm1_sort[int (weight_torch.size()[0] * (1-compress_rate) )]
             kernel_length = weight_torch.size()[1] *weight_torch.size()[2] *weight_torch.size()[3]  # 计算核的长度，即卷积核的参数b*c*d（待定）
 
-            print(weight_torch.size())
+            # print(weight_torch.size())
             # 创建掩码本（用于决定是否将值置为0），寻找剪枝的卷积核参数，将其掩码本位置置为0
             for x in range(0,len(filter_index)):
                 codebook[filter_index[x] *kernel_length : (filter_index[x]+1) *kernel_length] *= self.decay_rate
@@ -446,6 +463,7 @@ class Mask:
                     filter_length = weight_torch_next.size()[2] * weight_torch_next.size()[3]
                     for i in range(0,weight_torch_next.size()[0]):
                         codebook_next[kernel_length_next*i+filter_index[x]*filter_length:kernel_length_next*i+filter_index[x]*filter_length] *= self.decay_rate
+            print(self.decay_rate)
             # print("filter codebook done")
         else:
             pass
@@ -525,7 +543,7 @@ class Mask:
             if (index-3 in self.mask_index[:-1]):
                 # 将该卷积层的所有参数拉成一维向量，并与该层密码本相乘(即剪枝操作),再还原成原来的size
                 a = item.data.view(self.model_length[index])
-                print(self.mask_index)
+                # print(self.mask_index)
                 # print(index, self.mat_next[index - 3])
                 # print(self.mat_next)
                 b = a * self.mat_next[index-3]

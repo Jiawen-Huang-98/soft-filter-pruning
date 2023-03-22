@@ -17,14 +17,27 @@ from pruning_train import validate
 import torch.autograd as autograd
 from torchvision import datasets
 
-a = torch.rand(2,2,2,2)
+a = 2
 print(a)
-b = a.view(-1)
+b = a
+print(a==b)
 print(b)
-x = b[:-1]
-print(x)
-y = b[:-2]
-print(y)
+b = b/2
+print(b)
+print(a==b)
+
+
+
+
+
+# a = torch.rand(2,2,2,2)
+# print(a)
+# b = a.view(-1)
+# print(b)
+# x = b[:-1]
+# print(x)
+# y = b[:-2]
+# print(y)
 # c = a.view(a.size()[1],-1)
 # print(c)
 # d = a.view(a.size()[0],-1)

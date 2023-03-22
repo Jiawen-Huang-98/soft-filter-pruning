@@ -55,7 +55,7 @@ args = parser.parse_args(['./data/cifar.python', '--dataset', 'cifar10', '--arch
                          '--save_path', './logs/cifar10_resnet20_modeltest_{}'.format(time.strftime('%m-%d %H:%M')),
                          '--batch_size', '256','--evaluate',
                           # '--use_state_dict',
-                          '--resume','logs/cifar10_resnet20_modeltest/checkpoint.pth.tar'])
+                          '--resume','logs/cifar10_resnet20_modeltest/res_20_checkpoint.pth.tar'])
 args.use_cuda = args.ngpu > 0 and torch.cuda.is_available()
 
 # 设置随机种子
