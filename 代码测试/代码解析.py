@@ -9,22 +9,79 @@ import math
 import sys, os
 import torch
 from torch import sigmoid
-
+from utils import AverageMeter
 import models
 
 from torchvision import transforms
 from pruning_train import validate
 import torch.autograd as autograd
-from torchvision import datasets
+from torchvision import datasets as dset
 
-a = 2
-print(a)
-b = a
-print(a==b)
-print(b)
-b = b/2
-print(b)
-print(a==b)
+
+sys.path.append('./')
+global teacher_model
+teacher_model = models.__dict__['resnet20'](10)  # 设置（加载）网络模型
+teacher_model = torch.nn.DataParallel(teacher_model, device_ids = list(range(1)))  # GPU并行计算
+check_point = torch.load('pre_model/res_20_checkpoint.pth.tar', map_location = torch.device('cpu'))
+teacher_model.load_state_dict(check_point['state_dict'])
+teacher_model.eval()
+data_path = './data/cifar.python'
+mean = [x / 255 for x in [125.3, 123.0, 113.9]]
+std = [x / 255 for x in [63.0, 62.1, 66.7]]
+test_transform = transforms.Compose(
+        [transforms.ToTensor(),  # 数据格式转换成tensor
+         transforms.Normalize(mean, std)])  # 同正则化
+    # root=cifar-10-batches-py的根目录，train=是训练集，transform=数据的转换操作，download=从网络下载数据，并进行数据初始化操作
+# train_data = dset.CIFAR10(data_path, train = True, transform = train_transform, download = True)
+test_data = dset.CIFAR10(data_path, train = False, transform = test_transform, download = True)
+num_classes = 10
+dataloader = torch.utils.data.DataLoader(test_data, batch_size=16, shuffle=False,
+                                                num_workers=16, pin_memory=True)
+losses = AverageMeter()
+top1 = AverageMeter()
+top5 = AverageMeter()
+
+
+def accuracy(output, target, topk=(1,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
+
+    _, pred = output.topk(maxk, 1, True, True)  # 对output的第二哥维度进行排序，筛选出前maxk个值，并返回它们的序号（pred）
+    pred = pred.t()  # 转置
+    # eq返回两个对象对应元素是否相等，expand_as表示将target扩展成与pred相同的维度
+    correct = pred.eq(target.view(1, -1).expand_as(pred))  # view将目标拉成一维向量
+
+    res = []
+    for k in topk:
+        correct_k = correct[:k].reshape(-1).float().sum(0)  #sum(0)表示对第一维度进行相加
+        res.append(correct_k.mul_(100.0 / batch_size))
+    return res
+
+for i, (input, target) in enumerate(dataloader):
+    with torch.no_grad():
+        input_var = torch.autograd.Variable(input)
+    with torch.no_grad():
+        target_var = torch.autograd.Variable(target)
+
+    # compute output
+    output = teacher_model(input_var)
+    loss = torch.nn.CrossEntropyLoss(output, target_var)
+    prec1, prec5 = accuracy(output.data, target, topk = (1, 5))
+    losses.update(loss.item(), input.size(0))
+    top1.update(prec1.item(), input.size(0))
+    top5.update(prec5.item(), input.size(0))
+
+print('  **Test** Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Error@1 {error1:.3f}'.format(top1=top1, top5=top5, error1=100-top1.avg))
+
+# a = 2
+# print(a)
+# b = a
+# print(a==b)
+# print(b)
+# b = b/2
+# print(b)
+# print(a==b)
 
 
 

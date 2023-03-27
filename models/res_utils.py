@@ -10,7 +10,7 @@ class DownsampleA(nn.Module):
 
   def forward(self, x):   
     x = self.avg(x)  
-    return torch.cat((x, x.mul(0)), 1)  #在第二个维度上增加一个与X同规格的零矩阵
+    return torch.cat((x, x.mul(0)), 1)  #将X变为0矩阵，再与原x在第二个维度上拼接（作用：在第二个维度上增加一个与X同规格的零矩阵）
 
 class DownsampleC(nn.Module):     
 

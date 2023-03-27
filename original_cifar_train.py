@@ -126,8 +126,8 @@ def main():
 
     if args.dataset == 'cifar10':
         # root=cifar-10-batches-py的根目录，train=是训练集，transform=数据的转换操作，download=从网络下载数据，并进行数据初始化操作
-        train_data = dset.CIFAR10(args.data_path, train = True, transform = train_transform, download = False)
-        test_data = dset.CIFAR10(args.data_path, train = False, transform = test_transform, download = False)
+        train_data = dset.CIFAR10(args.data_path, train = True, transform = train_transform, download = True)
+        test_data = dset.CIFAR10(args.data_path, train = False, transform = test_transform, download = True)
         num_classes = 10
     elif args.dataset == 'cifar100':
         train_data = dset.CIFAR100(args.data_path, train = True, transform = train_transform, download = True)

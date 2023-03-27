@@ -86,7 +86,9 @@ class CifarResNet(nn.Module):
     def _make_layer(self, block, planes, blocks, stride = 1):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = DownsampleA(self.inplanes, planes * block.expansion, stride)
+            # downsample = DownsampleA(self.inplanes, planes * block.expansion, stride)
+            downsample = DownsampleC(self.inplanes, planes * block.expansion, stride)
+            # downsample = DownsampleD(self.inplanes, planes * block.expansion, stride)
 
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample))
